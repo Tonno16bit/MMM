@@ -1,24 +1,3 @@
-/*******************************************************************
-    A telegram bot for your ESP32 that demonstrates sending an image
-    from URL.
-
-    Parts:
-    ESP32 D1 Mini stlye Dev board* - http://s.click.aliexpress.com/e/C6ds4my
-    (or any ESP32 board)
-
-      = Affilate
-
-    If you find what I do useful and would like to support me,
-    please consider becoming a sponsor on Github
-    https://github.com/sponsors/witnessmenow/
-
-    Example originally written by Vadim Sinitski 
-
-    Library written by Brian Lough
-    YouTube: https://www.youtube.com/brianlough
-    Tindie: https://www.tindie.com/stores/brianlough/
-    Twitter: https://twitter.com/witnessmenow
- *******************************************************************/
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
