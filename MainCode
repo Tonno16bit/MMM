@@ -1,3 +1,24 @@
+/*******************************************************************
+    A telegram bot for your ESP32 that demonstrates sending an image
+    from URL.
+
+    Parts:
+    ESP32 D1 Mini stlye Dev board* - http://s.click.aliexpress.com/e/C6ds4my
+    (or any ESP32 board)
+
+      = Affilate
+
+    If you find what I do useful and would like to support me,
+    please consider becoming a sponsor on Github
+    https://github.com/sponsors/witnessmenow/
+
+    Example originally written by Vadim Sinitski 
+
+    Library written by Brian Lough
+    YouTube: https://www.youtube.com/brianlough
+    Tindie: https://www.tindie.com/stores/brianlough/
+    Twitter: https://twitter.com/witnessmenow
+ *******************************************************************/
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
@@ -39,7 +60,7 @@ void handleNewMessages(int numNewMessages) {
 
     if (text == "/start") {
       String welcome = "Benevenuto " + from_name + ",\n";
-      welcome += "io sono la Mappa del Malandrino del Majo (anche MMM)"
+      welcome += "io sono la Mappa del Malandrino del Majo (anche MMM)";
       welcome += "Sono qui per assisterti e potrai comunicare con me attraverso dei comandi preceduti dal simbolo /.\n\n";
       welcome += "/news : per le news\n";
       welcome += "/map  : per info su come usare la mappa del malandrino\n";
@@ -51,6 +72,7 @@ void handleNewMessages(int numNewMessages) {
     if (text == "/news") {
       String locandine = "ecco le news dei vari progetti studenteschi " + from_name + ".\n";
       locandine += "vicino è scritto l'IG dei vari progetti\n\n";
+      locandine += "/locMR   @majo.rana\n";
       locandine += "/locMB   @majoband_ \n";
       locandine += "/locLM   @letturalmente_majo\n";
       locandine += "/locRY   @majo_reyerschoolcup \n"; 
@@ -61,7 +83,7 @@ void handleNewMessages(int numNewMessages) {
     if (text == "/infoMM"){
       String infoMM = "Per utilizzare la mappa del malandrino basterà scrivere /tp.62.13 per avere le indicazioni per arrivare dall'aula 32 alla 13\n";
       infoMM += "a quel punto il bot ti manderà una foto con il percorso più veloce da seguire. Non serve passare per /infoMM ogni volta che si vuole usare la mappa del malandrino";
-      infoMM += "parole chiave utilizzabili per la mappa sono:\n\n"
+      infoMM += "parole chiave utilizzabili per la mappa sono:\n\n";
       infoMM += "wcM : bagno più vicino(Men)\n";
       infoMM += "wcW : bagno più vicino(Women)\n";
       infoMM += "sg  : segreteria\n";
@@ -69,10 +91,15 @@ void handleNewMessages(int numNewMessages) {
       infoMM += "au  : auditorium\n";
       infoMM += "vp  : vicepresidenza\n";
       infoMM += "\n";
+
+      bot.sendMessage(chat_id, infoMM, "");
     }
 
     if (text == "/op"){
-      String gitgit ="Il mio codice è presente su gitHub su questo link"
+      String gitgit ="Il mio codice è presente su gitHub su questo link:\n";
+      gitgit += "https://github.com/Tonno16bit/MMM/blob/main/MainCode \n";
+      gitgit += "codice di Rukkeli16 e mappa di Elena Campi. Idee/problemi/aggiunte chiedere in 5F.";
+      bot.sendMessage(chat_id, gitgit, "");
     }
   }
 }
