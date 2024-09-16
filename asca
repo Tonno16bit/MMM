@@ -1,0 +1,199 @@
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <UniversalTelegramBot.h>
+
+#include <Arduino.h>
+#include <U8g2lib.h>
+
+#ifdef U8X8_HAVE_HW_SPI
+#include <SPI.h>
+#endif
+#ifdef U8X8_HAVE_HW_I2C
+#include <Wire.h>
+#endif
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE, /* clock=*/ 4, /* data=*/ 3);   // ESP32 Thing, HW I2C with pin remapping
+// Wifi network station credentials
+#define WIFI_SSID "realme_hotspot"
+#define WIFI_PASSWORD "123456789"
+// Telegram BOT Token (Get from Botfather)
+#define BOT_TOKEN "6976059309:AAHgNJIISrZXYNBrTix9izKV5f38itSJ6o8"
+
+const unsigned long BOT_MTBS = 1000; // mean time between scan messages
+
+unsigned long bot_lasttime;          // last time messages' scan has been done
+WiFiClientSecure secured_client;
+UniversalTelegramBot bot(BOT_TOKEN, secured_client);
+
+String test_photo_url = "https://preview.redd.it/wnk2d6ldcynd1.jpeg?width=1080&crop=smart&auto=webp&s=f4c2183f1cebdccf5951ea99c5c74c9fdcdb9370";
+
+int y=0, x=0;
+String messaggio;
+
+String assegna(int b){
+  b=map(b, 0, 1023, 0,28);
+  String a="";
+  switch (b) {
+  case 0: a="a";
+    break;
+  case 1: a="b";
+    break;
+  case 2: a="c";
+    break;
+  case 3: a="d";
+    break;
+  case 4: a="e";
+    break;
+  case 5: a="f";
+    break;
+  case 6: a="g";
+    break;
+  case 7: a="h";
+    break;
+  case 8: a="i";
+    break;
+  case 9: a="j";
+    break;
+  case 10: a="k";
+    break;
+  case 11: a="l";
+    break;
+  case 12: a="m";
+    break;
+  case 13: a="n";
+    break;
+  case 14: a="o";
+    break;
+  case 15: a="p";
+    break;
+  case 16: a="q";
+    break;
+  case 17: a="r";
+    break;
+  case 18: a="s";
+    break;
+  case 19: a="t";
+    break;
+  case 20: a="u";
+    break;
+  case 21: a="v";
+    break;
+  case 22: a="w";
+    break;
+  case 23: a="x";
+    break;
+  case 24: a="y";
+    break;
+  case 25: a="z";
+    break;
+  case 26: a="/";
+    break;
+  case 27: a=" ";
+    break;
+  case 28: a=" ";
+    break;
+  default: a="%";
+  }
+ return a;
+}
+
+void handleNewMessages(int numNewMessages) {
+  Serial.print("handleNewMessages ");
+  Serial.println(numNewMessages);
+
+  for (int i=0; i<numNewMessages; i++) {
+    bot.messages[i].chat_id = "988762559";
+    String chat_id = bot.messages[i].chat_id;
+    String text = bot.messages[i].text;
+
+    String from_name = bot.messages[i].from_name;
+    bot.sendMessage( chat_id, text, "");
+    cout(0,40,text);
+  }
+}
+void cout (int x, int y, String string){
+  const char * c = string.c_str();
+  u8g2.clearBuffer();					// clear the internal memory
+  u8g2.drawStr(x,y,c);	// write something to the internal memory
+  u8g2.sendBuffer();					// transfer internal memory to the display
+}
+void setup()
+{
+  Serial.begin(115200);
+  Serial.println();
+  u8g2.begin();
+  u8g2.setFont(u8g2_font_ncenB08_tr);
+  pinMode(8, OUTPUT);
+  // attempt to connect to Wifi network:
+  Serial.print("Connecting to Wifi SSID ");
+  Serial.print(WIFI_SSID);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print(".");
+    delay(500);
+  }
+  digitalWrite(8, HIGH);
+  Serial.print("\nWiFi connected. IP address: ");
+  Serial.println(WiFi.localIP());
+  digitalWrite(8, HIGH);
+  Serial.print("Retrieving time: ");
+  configTime(0, 0, "pool.ntp.org"); // get UTC time via NTP
+  time_t now = time(nullptr);
+  while (now < 24 * 3600)
+  {
+    Serial.print(".");
+    delay(100);
+    now = time(nullptr);
+  }
+  Serial.println(now);
+  cout(0,10, "stringa" );
+}
+
+void loop()
+{
+  if (millis() - bot_lasttime > BOT_MTBS)
+  {
+    int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+
+    while (numNewMessages)
+    {
+      Serial.println("got response");
+      handleNewMessages(numNewMessages);
+      numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+    }
+
+    bot_lasttime = millis();
+  }
+  u8g2.clearBuffer();
+  int b= analogRead(0);
+  String a=assegna(b);
+  const char * coconut = a.c_str();
+  u8g2.drawStr(x,y,coconut);
+  if(digitalRead(10)==LOW){
+    messaggio[y]=a[0];
+    const char * chicco = messaggio.c_str();
+    u8g2.drawStr(0,y,chicco);
+    y++;
+    if(x==40){
+      y=0;
+      x=10;
+    }
+    if(y==10){
+      y=0;
+      x += 10;
+    }
+    if(a=="/"){
+      y=0;
+      x=10;
+      for(int k=0;k<40;k++){
+         messaggio[k]=32;
+      }
+    }
+    if(a=="j"){
+      String gigiastico = "988762559";
+      bot.sendMessage( gigiastico , messaggio, "");
+    }
+  }
+  u8g2.sendBuffer();
+}
