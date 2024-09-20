@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <U8g2lib.h>
 
 #ifdef U8X8_HAVE_HW_SPI
@@ -40,8 +39,8 @@ void drawString(u8g2_uint_t x, u8g2_uint_t y, String str){
   u8g2.drawStr(x,y,c);	
 }
 void loop(void) {
-  int a = 420, x=20;
-  String stringa = String(a);
+  int x=20;
+  String stringa = "420aAbBchii0";
   int y=map(smoothedreading(2), 60, 4095, 0, 80);
   u8g2.clearBuffer();					
   u8g2.setFont(u8g2_font_helvB10_tr);	
@@ -49,4 +48,3 @@ void loop(void) {
   u8g2.sendBuffer();
   delay(20);  
 }
-
