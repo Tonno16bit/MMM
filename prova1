@@ -1,0 +1,131 @@
+#include <U8g2lib.h>
+
+#ifdef U8X8_HAVE_HW_SPI
+#include <SPI.h>
+#endif
+#ifdef U8X8_HAVE_HW_I2C
+#include <Wire.h>
+#endif
+
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, 4, 3); 
+//variabili che servono per stabilizzare il valore letto dal potenziometro
+const int numReadings = 3;
+int readings[numReadings];  
+int readIndex = 0;          
+int total = 0;              
+int average = 0;            
+int currentPage = 0; //0 per il Menu, 1 per le Chat, 2 per la Calcolatrice, 3 per La WI-FI, 4 per le Impostazioni, 5 per Help
+int smoothedreading (int inputPin){
+  total = total - readings[readIndex];
+  readings[readIndex] = analogRead(inputPin);
+  total = total + readings[readIndex];
+  readIndex = readIndex + 1;
+  if (readIndex >= numReadings) {
+    readIndex = 0;
+  }
+  average = total / numReadings;
+  return average;
+}
+void ypositionbasedfont (int y){
+  int fontsize=0;
+  if(y<32){
+    fontsize=map(y, 0, 32, 3, 9);
+  }else{
+    fontsize=map(y, 32, 70, 9, 3);
+  }
+  u8g2.setDrawColor(1);
+  switch (fontsize) {
+    case 3:  
+      u8g2.setFont(u8g2_font_3x3basic_tr);
+      break;
+    case 4:  
+      u8g2.setFont(u8g2_font_u8glib_4_tf);
+      break;
+    case 5:  
+      u8g2.setFont(u8g2_font_4x6_mf);
+      break;
+    case 6:  
+      u8g2.setFont(u8g2_font_5x7_mf);
+      break;
+    case 7:  
+      u8g2.setFont(u8g2_font_6x10_mf);
+      break;
+    case 8:
+      u8g2.setFont(u8g2_font_6x13_mf);
+      if(y>32){
+        u8g2.setDrawColor(0);
+      }
+      break;
+    case 9:
+      u8g2.setFont(u8g2_font_6x13_mf );
+      u8g2.setDrawColor(0);
+      break;
+  }
+}
+void setup(void) {
+  u8g2.begin();
+  pinMode(2,INPUT);
+  pinMode(10,INPUT);
+  for (int thisReading = 0; thisReading < numReadings; thisReading++) {
+    readings[thisReading] = 0;
+  }
+}
+void drawString(u8g2_uint_t x, u8g2_uint_t y, String str){
+  const char * c = str.c_str();
+  u8g2.drawStr(x,y,c);	
+}
+void displayMenu(){
+  int y=map(smoothedreading(2), 60, 4095, 0, 70), x=20, PE=-36,SE=-18, TE=0, QE=18, QQE=36;
+  if(y+PE>0&&y+PE<70){	
+  ypositionbasedfont(y+PE);	
+  drawString(x,y+PE," Chat " );
+  }
+  if(y+SE>0&&y+SE<70){
+  ypositionbasedfont(y+SE);	
+  drawString(x,y+SE," Calcolatrice " );
+  }
+  if(y+TE>0&&y+TE<70){
+  ypositionbasedfont(y+TE);	
+  drawString(x,y+TE," WI-FI " );
+  }
+  if(y+QE>0&&y+QE<70){
+  ypositionbasedfont(y+QE);	
+  drawString(x,y+QE," Impostazioni " );
+  }
+  if(y+QQE>0&&y+QQE<70){
+  ypositionbasedfont(y+QQE);	
+  drawString(x,y+QQE," Help " );
+  }
+}
+void handleButtonHome(){
+
+}
+void readButton(){
+  if(digitalRead(10)==LOW){
+    switch (currentPage) {
+    case 0:  
+      handeButton();
+      break;
+    case 1:  
+      handeButton();
+      break;
+    case 2:  
+      handeButton();
+      break;
+    case 3:  
+      handeButton();
+      break;
+    case 4:  
+      handeButtonHomeImpostazioni();
+      break;
+    case 5:  
+      handeButtonHomeHelp();
+      break;
+  }
+}
+void loop(void) {
+  u8g2.clearBuffer();		
+  displayMenu();
+  u8g2.sendBuffer();
+  delay(20);  
+}
