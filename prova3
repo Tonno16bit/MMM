@@ -1,0 +1,175 @@
+#include <U8g2lib.h>
+#include <Wire.h>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <UniversalTelegramBot.h>
+
+#define WIFI_SSID "realme_hotspot"
+#define WIFI_PASSWORD "123456789"
+#define BOT_TOKEN "6976059309:AAHgNJIISrZXYNBrTix9izKV5f38itSJ6o8"
+
+const unsigned long BOT_MTBS = 50000; // mean time between scan messages
+
+WiFiClientSecure secured_client;
+UniversalTelegramBot bot(BOT_TOKEN, secured_client);
+unsigned long bot_lasttime; // last time messages' scan has been done
+
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, 4, 3); 
+//variabili che servono per stabilizzare il valore letto dal potenziometro
+const int numReadings = 3;
+int readings[numReadings];  
+int readIndex = 0;          
+int total = 0;              
+int average = 0;            
+int currentPage = 0; //0 per il Menu, 1 per le Chat 4095-3900, 2 per la Calcolatrice3700-2900, 3 per La WI-FI 2660-1850, 4 per le Impostazioni 1600-800, 5 per Help 530-0
+void handleNewMessages(int numNewMessages){
+  for (int i = 0; i < numNewMessages; i++)
+  {
+    bot.messages[i].text="mi è arrivato un messaggio. \n da Keryx V1.0";
+    bot.messages[i].chat_id="988762559";
+    bot.sendMessage(bot.messages[i].chat_id, bot.messages[i].text, "");
+  }
+}
+int smoothedreading (int inputPin){
+  total = total - readings[readIndex];
+  readings[readIndex] = analogRead(inputPin);
+  total = total + readings[readIndex];
+  readIndex = readIndex + 1;
+  if (readIndex >= numReadings) {
+    readIndex = 0;
+  }
+  average = total / numReadings;
+  return average;
+}
+void ypositionbasedfont (int y){
+  int fontsize=0;
+  if(y<32){
+    fontsize=map(y, 0, 32, 3, 9);
+  }else{
+    fontsize=map(y, 32, 70, 9, 3);
+  }
+  u8g2.setDrawColor(1);
+  switch (fontsize) {
+    case 3:  
+      u8g2.setFont(u8g2_font_3x3basic_tr);
+      break;
+    case 4:  
+      u8g2.setFont(u8g2_font_u8glib_4_tf);
+      break;
+    case 5:  
+      u8g2.setFont(u8g2_font_4x6_mf);
+      break;
+    case 6:  
+      u8g2.setFont(u8g2_font_5x7_mf);
+      break;
+    case 7:  
+      u8g2.setFont(u8g2_font_6x10_mf);
+      break;
+    case 8:
+      u8g2.setFont(u8g2_font_6x13_mf);
+      if(y>32){
+        u8g2.setDrawColor(0);
+      }
+      break;
+    case 9:
+      u8g2.setFont(u8g2_font_6x13_mf );
+      u8g2.setDrawColor(0);
+      break;
+  }
+}
+void setup(void) {
+  u8g2.begin();
+  pinMode(2,INPUT);
+  pinMode(10,INPUT);
+  for (int thisReading = 0; thisReading < numReadings; thisReading++) {
+    readings[thisReading] = 0;
+  }
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    //Serial.print(".");
+    delay(500);
+  }
+  //Serial.print("\nWiFi connected. IP address: ");
+  //Serial.println(WiFi.localIP());
+
+  //Serial.print("Retrieving time: ");
+  configTime(0, 0, "pool.ntp.org"); // get UTC time via NTP
+  time_t now = time(nullptr);
+  while (now < 24 * 3600)
+  {
+    //Serial.print(".");
+    delay(100);
+    now = time(nullptr);
+  }
+}
+void drawString(u8g2_uint_t x, u8g2_uint_t y, String str){
+  const char * c = str.c_str();
+  u8g2.drawStr(x,y,c);	
+}
+void displayMenu(){
+  int y=map(smoothedreading(2), 6, 4095, 0, 70), x=20, PE=-36,SE=-18, TE=0, QE=18, QQE=36;
+  ypositionbasedfont(32);
+  drawString(80,32,String(average));
+  drawString(80,20,String(digitalRead(10)));
+  if(y+PE>0&&y+PE<70){	
+  ypositionbasedfont(y+PE);	
+  drawString(x,y+PE," Chat " );
+  }
+  if(y+SE>0&&y+SE<70){
+  ypositionbasedfont(y+SE);	
+  drawString(x,y+SE," Calcol " );
+  }
+  if(y+TE>0&&y+TE<70){
+  ypositionbasedfont(y+TE);	
+  drawString(x,y+TE," WI-FI " );
+  }
+  if(y+QE>0&&y+QE<70){
+  ypositionbasedfont(y+QE);	
+  drawString(x,y+QE," Imp " );
+  }
+  if(y+QQE>0&&y+QQE<70){
+  ypositionbasedfont(y+QQE);	
+  drawString(x,y+QQE," Help " );
+  }
+}
+void readButton(){
+  if(digitalRead(10)==1){
+    if(average<4095&&average>3900){
+      handleNewMessages(1);
+    }
+    if(average<3700&&average>2900){
+      handleNewMessages(1);
+    }
+    if(average<2660&&average>1850){
+      handleNewMessages(1);
+    }
+    if(average<1600&&average>800){
+      handleNewMessages(1);
+    }
+    if(average<530&&average>0){
+      handleNewMessages(1);
+    }
+  }
+}
+void loop(void) {
+  u8g2.clearBuffer();		
+  displayMenu();
+  readButton();
+  u8g2.sendBuffer();
+  if (millis() - bot_lasttime > BOT_MTBS)
+  {
+    int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+
+    while (numNewMessages)
+    {
+      //Serial.println("got response");
+      handleNewMessages(numNewMessages);
+      numNewMessages = bot.getUpdates(bot.last_message_received + 1);
+    }
+
+    bot_lasttime = millis();
+  }
+  delay(20);  
+}
