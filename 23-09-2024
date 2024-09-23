@@ -1,3 +1,4 @@
+//librerie varie
 #include <U8g2lib.h>
 #include <Wire.h>
 #include <WiFi.h>
@@ -15,7 +16,7 @@ UniversalTelegramBot bot(BOT_TOKEN, secured_client);
 unsigned long bot_lasttime; // last time messages' scan has been done
 
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, 4, 3); 
-//variabili che servono per stabilizzare il valore letto dal potenziometro
+//variabili che servono per stabilizzare il valore letto dal potenziometro ed altro
 const int numReadings = 3;
 time_t now = time(nullptr);
 int readings[numReadings];  
@@ -23,6 +24,8 @@ int readIndex = 0;
 int total = 0;              
 int average = 0;            
 int currentPage = 0; //0 per il Menu, 1 per le Chat 4095-3900, 2 per la Calcolatrice3700-2900, 3 per La WI-FI 2660-1850, 4 per le Impostazioni 1600-800, 5 per Help 530-0
+
+//serve a gestire i nuovi messaggi arrivati
 void handleNewMessages(int numNewMessages, String strong, String id){
   displayloading();
   for (int i = 0; i < numNewMessages; i++)
@@ -32,6 +35,7 @@ void handleNewMessages(int numNewMessages, String strong, String id){
     bot.sendMessage(bot.messages[i].chat_id, bot.messages[i].text, "");
   }
 }
+//serve a stabilizzare il valore del potenziometro
 void smoothedreading (int inputPin){
   total = total - readings[readIndex];
   readings[readIndex] = analogRead(inputPin);
@@ -42,6 +46,7 @@ void smoothedreading (int inputPin){
   }
   average = total / numReadings;
 }
+//setta il font in base alla posizione di y data. al centro sarà più grande e sarà con sfondo bianco(selezionato quindi)
 void ypositionbasedfont (int y){
   int fontsize=0;
   if(y<32){
@@ -78,6 +83,7 @@ void ypositionbasedfont (int y){
       break;
   }
 }
+//il setup. qua faccio partire tutto e lo faccio connettere al wifi ed all'ora locale. nella versione finale questo non sarà nel setup perché bisognerà collegarsi post accensione e poi mettere la modalità sleep
 void setup(void) {
   u8g2.begin();
   bootingUp();
@@ -116,10 +122,12 @@ void setup(void) {
     now = time(nullptr);
   }
 }
+//mi fa disegnare le stringhe senza dover convertire ogni volta a const char *
 void drawString(u8g2_uint_t x, u8g2_uint_t y, String str){
   const char * c = str.c_str();
   u8g2.drawStr(x,y,c);	
 }
+// stampa il menu in base al valore del potenziometro
 void displayMenu(){
   int y=map(average, 6, 4095, 0, 70), x=20, PE=-36,SE=-18, TE=0, QE=18, QQE=36;
   ypositionbasedfont(32);
@@ -150,6 +158,7 @@ void displayMenu(){
   drawString(x,y+QQE," Help " );
   }
 }
+//stampa la chat in vase al valore del potenziometro
 void displayChat(){
   int y=map(average, 6, 4095, 0, 70), x=20, PE=-36,SE=-18, TE=0, QE=18, QQE=36;
   ypositionbasedfont(32);
@@ -176,6 +185,7 @@ void displayChat(){
   drawString(x,y+QQE," Monke " );
   }
 }
+//se il bottone è premuto fa quello che dice la cosa selezionata
 void readMenuButton(){
   if(digitalRead(10)==1){
     if(average<=4095&&average>3900){
@@ -204,6 +214,7 @@ void readMenuButton(){
     }}}}}
   }
 }
+//vedi descrizione dell'ultima funzione
 void readChatButton(){
   if(digitalRead(10)==1){
     if(average<=4095&&average>3900){
@@ -220,6 +231,7 @@ void readChatButton(){
     }}}}}
   }
 }
+//ogni volta che si manda un messaggio si freezza completamente lo schermo. per ovviare a questo fastidio/inconveniente, prima di mandare un messaggio gli faccio stampare una schermata di caricamento
 void displayloading(){
   u8g2.clearBuffer();	
   u8g2.setFont(u8g2_font_6x13_mf);
@@ -227,13 +239,15 @@ void displayloading(){
   drawString(10,26,"Sending Message..." );
   u8g2.sendBuffer();
 }
+//intanto è una schermata di caricamento super base, da revisionare
 void bootingUp(){
   u8g2.clearBuffer();	
   u8g2.setFont(u8g2_font_6x13_mf);
   u8g2.setDrawColor(1);
-  drawString(30,36,"Keryx V1.0" );
+  drawString(30,36,"HermPhone V1.0" );
   u8g2.sendBuffer();
 }
+//funzione in corso d'opera
 void displayChat(int8_t chatnum){
   bool continua = 1;
   do{
@@ -241,7 +255,7 @@ void displayChat(int8_t chatnum){
     map(average, 0, 4095,32,122);
   }while(continua);
 }
-
+//il loop
 void loop(void) {
   smoothedreading(2);
   u8g2.clearBuffer();	
