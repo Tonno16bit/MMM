@@ -1,0 +1,105 @@
+#include <U8g2lib.h>
+#include <Wire.h>
+
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, 4, 3); 
+int currentKeyboard = 0;  
+const int numReadings = 1;        
+int readings[numReadings];  
+int readIndex = 0;          
+int total = 0;              
+int average = 0;    
+char VDI[19][5];
+int X=0,Y=6;
+
+void setup(void) {
+  u8g2.begin();
+  pinMode(2,INPUT);
+  pinMode(10,INPUT);
+  for (int thisReading = 0; thisReading < numReadings; thisReading++) {
+    readings[thisReading] = 0;
+  }
+}
+
+void smoothedreading (int inputPin){
+  total = total - readings[readIndex];
+  readings[readIndex] = analogRead(inputPin);
+  total = total + readings[readIndex];
+  readIndex = readIndex + 1;
+  if (readIndex >= numReadings) {
+    readIndex = 0;
+  }
+  average = total / numReadings;
+}
+
+void drawString(u8g2_uint_t x, u8g2_uint_t y, String str){
+  const char * c = str.c_str();
+  u8g2.drawStr(x,y,c);	
+}
+
+void stampaVDI(){
+  for(int y=0; y<5; y++){
+    for(int x=0; x<19; x++){
+      if(x==X&&y==Y){
+        u8g2.setDrawColor(0);
+        drawString(x*6,y*13,String(VDI[x][y]));
+        u8g2.setDrawColor(1);
+      }else{drawString(x*6,y*13,String(VDI[x][y]));}
+    }
+  }
+}
+
+void loop(void) {
+  u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_6x13_mf );
+  u8g2.setDrawColor(1);
+  smoothedreading(2);
+  stampaVDI();
+  switch (currentKeyboard) {
+    case 0: 
+            if(average>4000){
+              VDI[X][Y]='A';
+            }else{
+              VDI[X][Y]=map(average, 50, 4000, 65, 90 );
+              }
+    break;
+    case 1: if(average>4000){
+              VDI[X][Y]='0';
+            }else{
+              VDI[X][Y]=map(average, 50, 4000, 97, 122 );
+              }
+    break;
+    case 2: if(average>4000){
+              VDI[X][Y]='a';
+            }else{
+              VDI[X][Y]=map(average, 50, 4000, 33, 63 );
+              }
+    break;
+    }
+  if(digitalRead(10)==1){
+    bool bebe=0;
+    if(average>4000&&currentKeyboard==0){
+      currentKeyboard++;
+      bebe=1;
+    }
+    if(average>4000&&currentKeyboard==1){
+      currentKeyboard++;
+      bebe=1;
+    }
+    if(average>4000&&currentKeyboard==2){
+      currentKeyboard=0;
+      bebe=1;
+    }
+    if(X>15){
+      Y++;
+      X=0;
+      }
+    if(bebe==0){
+      X++;
+    }
+    
+    delay(500);
+  }
+  u8g2.sendBuffer();					// transfer internal memory to the display
+  delay(100);  
+}
+
