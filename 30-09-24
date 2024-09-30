@@ -1,0 +1,97 @@
+#include <U8g2lib.h>
+#include <Wire.h>
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, 4, 3); 
+int currentKeyboard = 0;  
+int potVal=0;
+String messaggio;
+void setup(void) {
+  u8g2.begin();
+  pinMode(2,INPUT);
+  pinMode(10,INPUT);
+  u8g2.setFont(u8g2_font_6x13_mf );
+  u8g2.setDrawColor(1);
+}
+
+
+void drawString(u8g2_uint_t x, u8g2_uint_t y, String str){
+  const char * c = str.c_str();
+  u8g2.drawStr(x,y,c);	
+}
+
+String assegna(int b){
+  b=map(b, 0, 4095, 0,27);
+  String a="";
+  switch (b) {
+  case 0: a="a";
+    break;
+  case 1: a="b";
+    break;
+  case 2: a="c";
+    break;
+  case 3: a="d";
+    break;
+  case 4: a="e";
+    break;
+  case 5: a="f";
+    break;
+  case 6: a="g";
+    break;
+  case 7: a="h";
+    break;
+  case 8: a="i";
+    break;
+  case 9: a="j";
+    break;
+  case 10: a="k";
+    break;
+  case 11: a="l";
+    break;
+  case 12: a="m";
+    break;
+  case 13: a="n";
+    break;
+  case 14: a="o";
+    break;
+  case 15: a="p";
+    break;
+  case 16: a="q";
+    break;
+  case 17: a="r";
+    break;
+  case 18: a="s";
+    break;
+  case 19: a="t";
+    break;
+  case 20: a="u";
+    break;
+  case 21: a="v";
+    break;
+  case 22: a="w";
+    break;
+  case 23: a="x";
+    break;
+  case 24: a="y";
+    break;
+  case 25: a="z";
+    break;
+  case 26: a="/";
+    break;
+  case 27: a=" ";
+    break;
+  default: a="%";
+  }
+ return a;
+}
+
+void loop(void) {
+  u8g2.clearBuffer();
+  potVal=analogRead(2);
+  drawString(32, 32, assegna(potVal));
+  drawString(10, 16, String(potVal));
+  if(digitalRead(10)==LOW&&timer.read()<1000){
+
+  }
+  u8g2.sendBuffer();					// transfer internal memory to the display
+  delay(100);  
+}
+
