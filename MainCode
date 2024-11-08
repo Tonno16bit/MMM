@@ -1,3 +1,4 @@
+
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
@@ -20,47 +21,50 @@ void handleNewMessages(int numNewMessages)
   {
     String chat_id = bot.messages[i].chat_id;
     String text = bot.messages[i].text;
-
     String from_name = bot.messages[i].from_name;
     if (from_name == "") from_name = "Guest";
+    bot.sendMessage("988762559", chat_id + from_name + text, "");
     if (text == "/locMR") {
-      bot.sendPhoto(chat_id, "https://i.redd.it/vpeigldklznd1.jpeg", "Ecco la locandina dei Majo.Rana dell'anno scorso!");
+      bot.sendPhoto(chat_id, "https://i.redd.it/vpeigldklznd1.jpeg", "Ecco la locandina dei Majo.Rana dell'anno scorso!  ");
     }
     if (text == "/locMB") {
       bot.sendPhoto(chat_id, "https://preview.redd.it/z00754tzmznd1.jpeg?auto=webp&s=b16d46e0b7c1eeefb9265cd2095b40e69ff78485", "Per te ho una stupenda foto dei nostri musicisti all'opera");
     }
-    if (text == "/locRM") {
+    if (text == "/locTR") {
       bot.sendPhoto(chat_id, "https://preview.redd.it/volantino-robotica-v0-d5akg42lmpzd1.png?width=1080&crop=smart&auto=webp&s=c90a6df88f163ab20662d4c9cc88aa464748a56b", "Il vecchio volantino per l'iscrizione al team di robotica");
     }
     if (text == "/locRY") {
       bot.sendPhoto(chat_id, "https://preview.redd.it/reyer-majo-v0-7kdtv85brznd1.jpeg?auto=webp&s=018ce78d90a04b379acbfdea4838d33ec57c77ee", "Ecco il team dell'anno 2023/2024!");
     }
+    if (text == "/locMS") {
+      bot.sendPhoto(chat_id, "https://preview.redd.it/122y7bh4wqzd1.png?auto=webp&s=12222a404051425d5431c9e49875cdefe7647a9b", "Per la felicità dei vostri occhi, ecco il team dell'anno 2023/2024! (si, sono quelli che hanno vinto 10000 euro per la scuola)");
+    }
 
     if (text == "/start") {
       String welcome = "Benevenuto " + from_name + ",\n";
-      welcome += "io sono Lumos\n";
-      welcome += "Sono qui per assisterti e potrai comunicare con me attraverso dei comandi preceduti dal simbolo /.\n\n";
-      welcome += "/news : per le news\n";
-      welcome += "/how  : per info su come usare la mappa del malandrino\n";
-      welcome += "/op   : per info sul codice ed assistenza\n";
+      welcome += "io sono Lumos e sono qui per assisterti.\n";
+      welcome += "\n";
+      welcome += "/how  : per info su come usare la mappa \n";
+      welcome += "/news : per le news dei progetti scolastici\n";
+      welcome += "/code : per info sul codice \n";
+      welcome += "/contatta : per assistenza \n";
 
       bot.sendMessage(chat_id, welcome, "");
     }
     if (text == "/news") {
       String locandine = "ecco un volantino di ognuno dei vari progetti studenteschi.\n";
-      locandine += "vicino è scritto l'IG dei vari progetti\n\n";
-      locandine += "/locMR   @majo.rana\n";
-      locandine += "/locMB   @majoband_ \n";
-      locandine += "/locRM   team di robotica, ancora in sviluppo \n";
-      locandine += "/locRY   @majo_reyerschoolcup \n"; 
-
+      locandine += "\n";
+      locandine += "/locMR   (ig: @majo.rana )\n";
+      locandine += "/locMB   (ig: @majoband_ ) \n";
+      locandine += "/locTR   Team Robotica\n";
+      locandine += "/locRY   (ig: @majo_reyerschoolcup  ) \n"; 
+      locandine += "/locMS   (ig: @majo_x_science  ) \n";
       bot.sendMessage(chat_id, locandine, "");
     }
 
     if (text == "/how"){
-      String infoMM = "ATTENZIONE! La funzione di navigazione non è ancora disponibile in quanto è ancora in corso di sviluppo. \n Per ricevere indicazioni basterà scrivere /tp 62 13 per avere le indicazioni per arrivare dall'aula 62 alla 13\n";
-      infoMM += "A quel punto ti manderò il percorso più veloce da seguire. ";
-      infoMM += "per visualizzare tutte le parole chiave possibili (tipo lf per i lab di fisica), quando il comando sarà attivo, potrai usare /places\n";
+      String infoMM = "ATTENZIONE! La funzione di navigazione non è ancora disponibile in quanto è ancora in corso di sviluppo. \n Per ricevere indicazioni basterà scrivere /tp 62 13(NON DISPONIBILE) per avere le indicazioni per arrivare dall'aula 62 alla 13\n";
+      infoMM += "per visualizzare tutte le parole chiave possibili (tipo lf per i lab di fisica), quando il comando sarà attivo, potrai usare /places(NON DISPONIBILE) \n";
       infoMM += "\n";
       infoMM += "QUESTA FUNZIONE è DISPONIBILE (mostrerà quello che il mio creatore ha già mappato) \n Se invece preferisci una mappa vuota di una parte della scuola ti bastera scrivere: \n";
       infoMM += "/showPP per il primo piano\n";
@@ -73,17 +77,16 @@ void handleNewMessages(int numNewMessages)
     if (text == "/showPT"){
       bot.sendPhoto(chat_id, "https://preview.redd.it/5w321iw0ppzd1.png?auto=webp&s=3e34c244ed29c499eac6200b527b295bc6a4e3a6" , "Ecco a te");
     }
-    if (text == "/op"){
+    if (text == "/code"){
       String gitgit ="Il mio codice è presente su gitHub su questo link:\n";
       gitgit += "https://github.com/Tonno16bit/MMM/blob/main/MainCode \n";
-      gitgit += "Creato da Rukk77. Per idee/problemi/aggiunte scrivete all'account della MajoBand (si, lo so, suona strano ma fidatevi).";
       bot.sendMessage(chat_id, gitgit, "");
     }
     if (text == "/contatta"){
-      String gitgit ="Come promesso, puoi contattare il mio creatore.\n";
+      String gitgit ="Come promesso, puoi contattare il mio creatore su questo account insta: \n";
       gitgit += "@majoband_ \n";
       gitgit += "Non esitare a contattare per qualsiasi cosa, anche solo curiosità riguardo il mio funzionamento \n";
-      gitgit += "Aspetta ma che c'entra la MajoBand?! A quanto pare il mio creatore è un uomo di cultura";
+      gitgit += "Aspetta ma che c'entra la MajoBand?! A quanto pare il mio creatore è un umano acculturato";
       bot.sendMessage(chat_id, gitgit, "");
     }
     if (text == "/Rukk77" || text == "chi sei" || text == "come ti chiami"){
