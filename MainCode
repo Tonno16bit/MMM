@@ -3,10 +3,10 @@
 #include <UniversalTelegramBot.h>
 
 // Wifi network station credentials
-#define WIFI_SSID "realme_hotspot"
-#define WIFI_PASSWORD "123456789"
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
 // Telegram BOT Token (Get from Botfather)
-#define BOT_TOKEN "7234010017:AAEqDTUNtkTpeDyYSX8saKcSxV685qeQt9s"
+#define BOT_TOKEN ""
 
 const unsigned long BOT_MTBS = 1000; // mean time between scan messages
 
