@@ -4,15 +4,15 @@
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
 
-#define WIFI_SSID "realme_hotspot"
-#define WIFI_PASSWORD "123456789"
-#define BOT_TOKEN "6976059309:AAHgNJIISrZXYNBrTix9izKV5f38itSJ6o8"
+#define WIFI_SSID "WIFINAME"
+#define WIFI_PASSWORD "WIFIPASS"
+#define BOT_TOKEN "FULLTOKEN"
 
-const unsigned long BOT_MTBS = 50000; // mean time between scan messages
+const unsigned long BOT_MTBS = 50000; 
 
 WiFiClientSecure secured_client;
 UniversalTelegramBot bot(BOT_TOKEN, secured_client);
-unsigned long bot_lasttime; // last time messages' scan has been done
+unsigned long bot_lasttime; 
 
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, 4, 3); 
 //variabili che servono per stabilizzare il valore letto dal potenziometro
@@ -25,8 +25,8 @@ int currentPage = 0; //0 per il Menu, 1 per le Chat 4095-3900, 2 per la Calcolat
 void handleNewMessages(int numNewMessages){
   for (int i = 0; i < numNewMessages; i++)
   {
-    bot.messages[i].text="mi è arrivato un messaggio. \n da Keryx V1.0";
-    bot.messages[i].chat_id="988762559";
+    bot.messages[i].text="mi è arrivato un messaggio. \n da HePh V1.0";
+    bot.messages[i].chat_id="INSERTMYTOKEN";
     bot.sendMessage(bot.messages[i].chat_id, bot.messages[i].text, "");
   }
 }
@@ -85,7 +85,7 @@ void setup(void) {
     readings[thisReading] = 0;
   }
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
+  secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT);
   while (WiFi.status() != WL_CONNECTED)
   {
     //Serial.print(".");
@@ -95,7 +95,7 @@ void setup(void) {
   //Serial.println(WiFi.localIP());
 
   //Serial.print("Retrieving time: ");
-  configTime(0, 0, "pool.ntp.org"); // get UTC time via NTP
+  configTime(0, 0, "pool.ntp.org"); 
   time_t now = time(nullptr);
   while (now < 24 * 3600)
   {
